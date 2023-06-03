@@ -154,6 +154,18 @@ func (s *Session) registerHandlers() {
 		event.EventMessageReactionRemove:      &MessageReactionRemoveHandler{},
 		event.EventMessageReactionRemoveAll:   &MessageReactionRemoveAllHandler{},
 		event.EventMessageReactionRemoveEmoji: &MessageReactionRemoveEmojiHandler{},
+
+		// Typing events
+		event.EventTypingStart: &TypingStartHandler{},
+
+		// Invite events
+		event.EventInviteCreate: &InviteCreateHandler{},
+		event.EventInviteDelete: &InviteDeleteHandler{},
+
+		event.EventUserUpdate: &UserUpdateHandler{},
+
+		// Guild Audit Log events
+		event.EventGuildAuditLogEntryCreate: &GuildAuditLogEntryCreateHandler{},
 	}
 }
 

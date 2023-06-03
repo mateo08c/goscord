@@ -4,6 +4,8 @@ import (
 	"github.com/Goscord/goscord/goscord/gateway/event"
 )
 
+//Channel handlers
+
 type ChannelCreateHandler struct{}
 
 func (_ *ChannelCreateHandler) Handle(s *Session, data []byte) {
@@ -59,6 +61,8 @@ func (_ *ChannelPinsUpdateHandler) Handle(s *Session, data []byte) {
 
 	s.Publish(event.EventChannelPinsUpdate, ev.Data)
 }
+
+//Thread handlers
 
 type ThreadCreateHandler struct{}
 
@@ -146,4 +150,18 @@ func (_ *ThreadMembersUpdateHandler) Handle(s *Session, data []byte) {
 	// ToDo : Update thread members?
 
 	s.Publish(event.EventThreadMembersUpdate, ev.Data)
+}
+
+//Typing handlers
+
+type TypingStartHandler struct{}
+
+func (_ *TypingStartHandler) Handle(s *Session, data []byte) {
+	ev, err := event.NewTypingStart(s.rest, data)
+
+	if err != nil {
+		return
+	}
+
+	s.Publish(event.EventTypingStart, ev.Data)
 }

@@ -297,3 +297,12 @@ type ThreadMembersUpdateEventFields struct {
 	AddedMembers      []*ThreadMember `json:"added_members,omitempty"`
 	RemovedMembersIds []string        `json:"removed_member_ids,omitempty"`
 }
+
+// TypingStartEvent is used by the TYPING_START event
+type TypingStartEvent struct {
+	UserId    string       `json:"user_id"`
+	Timestamp int          `json:"timestamp"`
+	Member    *GuildMember `json:"member,omitempty"`
+	ChannelId string       `json:"channel_id"`
+	GuildId   string       `json:"guild_id,omitempty"`
+}

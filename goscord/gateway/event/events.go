@@ -44,6 +44,7 @@ const (
 	EventGuildScheduledEventDelete           EventType = "GUILD_SCHEDULED_EVENT_DELETE"
 	EventGuildScheduledEventUserAdd          EventType = "GUILD_SCHEDULED_EVENT_USER_ADD"
 	EventGuildScheduledEventUserRemove       EventType = "GUILD_SCHEDULED_EVENT_USER_REMOVE"
+	EventGuildAuditLogEntryCreate            EventType = "GUILD_AUDIT_LOG_ENTRY_CREATE"
 	EventIntegrationCreate                   EventType = "INTEGRATION_CREATE"
 	EventIntegrationUpdate                   EventType = "INTEGRATION_UPDATE"
 	EventIntegrationDelete                   EventType = "INTEGRATION_DELETE"

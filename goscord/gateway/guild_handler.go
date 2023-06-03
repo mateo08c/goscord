@@ -260,3 +260,15 @@ func (_ *GuildRoleDeleteHandler) Handle(s *Session, data []byte) {
 
 	s.Publish(event.EventGuildRoleDelete, ev.Data)
 }
+
+type GuildAuditLogEntryCreateHandler struct{}
+
+func (_ *GuildAuditLogEntryCreateHandler) Handle(s *Session, data []byte) {
+	ev, err := event.NewGuildAuditLogEntryCreate(s.rest, data)
+
+	if err != nil {
+		return
+	}
+
+	s.Publish(event.EventGuildAuditLogEntryCreate, ev.Data)
+}
