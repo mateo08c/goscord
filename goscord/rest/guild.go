@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/bytedance/sonic"
+	"net/http"
 )
 
 type GuildHandler struct {
@@ -15,7 +16,7 @@ func NewGuildHandler(rest *Client) *GuildHandler {
 }
 
 func (gh *GuildHandler) GetMember(guildId, userId string) (*discord.GuildMember, error) {
-	data, err := gh.rest.Request(fmt.Sprintf(EndpointGetGuildMember, guildId, userId), "GET", nil, "application/json")
+	data, err := gh.rest.Request(fmt.Sprintf(EndpointGetGuildMember, guildId, userId), http.MethodGet, nil, "application/json")
 
 	if err != nil {
 		return nil, err
@@ -32,13 +33,40 @@ func (gh *GuildHandler) GetMember(guildId, userId string) (*discord.GuildMember,
 }
 
 func (gh *GuildHandler) AddMemberRole(guildId, userId, roleId string) error {
-	_, err := gh.rest.Request(fmt.Sprintf(EndpointAddGuildMemberRole, guildId, userId, roleId), "PUT", nil, "application/json")
+	_, err := gh.rest.Request(fmt.Sprintf(EndpointAddGuildMemberRole, guildId, userId, roleId), http.MethodPut, nil, "application/json")
 
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (gh *GuildHandler) RemoveMemberRole(guildId, userId, roleId string) error {
+	_, err := gh.rest.Request(fmt.Sprintf(EndpointRemoveGuildMemberRole, guildId, userId, roleId), http.MethodDelete, nil, "application/json")
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (gh *GuildHandler) Get(s discord.Snowflake) (*discord.Guild, error) {
+	data, err := gh.rest.Request(fmt.Sprintf(EndpointGetGuild, s), http.MethodGet, nil, "application/json")
+
+	if err != nil {
+		return nil, err
+	}
+
+	var guild *discord.Guild
+	err = sonic.Unmarshal(data, &guild)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return guild, nil
 }
 
 // ToDo
