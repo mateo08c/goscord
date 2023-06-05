@@ -14,13 +14,38 @@ import (
 type Client struct {
 	token string
 	rl    *ratelimit.RateLimiter
+
+	// Handlers
+	Application *ApplicationHandler
+	Channel     *ChannelHandler
+	Emoji       *EmojiHandler
+	Guild       *GuildHandler
+	Interaction *InteractionHandler
+	Invite      *InviteHandler
+	Template    *TemplateHandler
+	User        *UserHandler
+	Voice       *VoiceHandler
+	Webhook     *WebhookHandler
 }
 
 func NewClient(token string) *Client {
-	return &Client{
+	c := &Client{
 		token: token,
 		rl:    ratelimit.NewRateLimiter(),
 	}
+
+	c.Application = NewApplicationHandler(c)
+	c.Channel = NewChannelHandler(c)
+	c.Emoji = NewEmojiHandler(c)
+	c.Guild = NewGuildHandler(c)
+	c.Interaction = NewInteractionHandler(c)
+	c.Invite = NewInviteHandler(c)
+	c.Template = NewTemplateHandler(c)
+	c.User = NewUserHandler(c)
+	c.Voice = NewVoiceHandler(c)
+	c.Webhook = NewWebhookHandler(c)
+
+	return c
 }
 
 func (c *Client) Request(endpoint, method string, data io.Reader, contentType string) ([]byte, error) {

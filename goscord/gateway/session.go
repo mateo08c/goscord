@@ -32,17 +32,19 @@ const (
 )
 
 type Session struct {
+	// Mutex
 	sync.RWMutex
 
+	// General fields
 	options  *Options
-	rest     *rest.Client
 	presence *packet.PresenceUpdate
 	user     *discord.User
+	rest     *rest.Client
 	bus      *ev.EventBus
 	state    *State
 	status   Status
 
-	// ws conn
+	// Websocket fields
 	connMu   sync.Mutex
 	conn     *websocket.Conn
 	handlers map[event.EventType]EventHandler
@@ -57,44 +59,20 @@ type Session struct {
 
 	// voice conn
 	VoiceConnections map[string]*VoiceConnection
-
-	// Rest handlers
-	Application *rest.ApplicationHandler
-	Channel     *rest.ChannelHandler
-	Emoji       *rest.EmojiHandler
-	Guild       *rest.GuildHandler
-	Interaction *rest.InteractionHandler
-	Invite      *rest.InviteHandler
-	Template    *rest.TemplateHandler
-	User        *rest.UserHandler
-	Voice       *rest.VoiceHandler
-	Webhook     *rest.WebhookHandler
 }
 
-func NewSession(options *Options) *Session {
+func NewSession(options *Options, rest *rest.Client) *Session {
 	s := new(Session)
 
 	s.options = options
 	s.presence = packet.NewPresenceUpdate(nil, discord.StatusTypeOnline)
 	s.user = new(discord.User)
-	s.rest = rest.NewClient(options.Token)
 	s.bus = ev.New().(*ev.EventBus)
 	s.state = NewState()
 	s.status = StatusUnconnected
 
 	// voice conn
 	s.VoiceConnections = make(map[string]*VoiceConnection)
-
-	s.Application = rest.NewApplicationHandler(s.rest)
-	s.Channel = rest.NewChannelHandler(s.rest)
-	s.Emoji = rest.NewEmojiHandler(s.rest)
-	s.Guild = rest.NewGuildHandler(s.rest)
-	s.Interaction = rest.NewInteractionHandler(s.rest)
-	s.Invite = rest.NewInviteHandler(s.rest)
-	s.Template = rest.NewTemplateHandler(s.rest)
-	s.User = rest.NewUserHandler(s.rest)
-	s.Voice = rest.NewVoiceHandler(s.rest)
-	s.Webhook = rest.NewWebhookHandler(s.rest)
 
 	s.registerHandlers()
 
