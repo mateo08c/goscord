@@ -15,6 +15,8 @@ func NewGuildHandler(rest *Client) *GuildHandler {
 	return &GuildHandler{rest: rest}
 }
 
+// Members
+
 func (gh *GuildHandler) GetMember(guildId, userId string) (*discord.GuildMember, error) {
 	data, err := gh.rest.Request(fmt.Sprintf(EndpointGetGuildMember, guildId, userId), http.MethodGet, nil, "application/json")
 
@@ -31,6 +33,8 @@ func (gh *GuildHandler) GetMember(guildId, userId string) (*discord.GuildMember,
 
 	return member, nil
 }
+
+// Roles
 
 func (gh *GuildHandler) AddMemberRole(guildId, userId, roleId string) error {
 	_, err := gh.rest.Request(fmt.Sprintf(EndpointAddGuildMemberRole, guildId, userId, roleId), http.MethodPut, nil, "application/json")
@@ -52,6 +56,8 @@ func (gh *GuildHandler) RemoveMemberRole(guildId, userId, roleId string) error {
 	return nil
 }
 
+//Guilds
+
 func (gh *GuildHandler) Get(s discord.Snowflake) (*discord.Guild, error) {
 	data, err := gh.rest.Request(fmt.Sprintf(EndpointGetGuild, s), http.MethodGet, nil, "application/json")
 
@@ -68,5 +74,3 @@ func (gh *GuildHandler) Get(s discord.Snowflake) (*discord.Guild, error) {
 
 	return guild, nil
 }
-
-// ToDo

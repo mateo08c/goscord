@@ -10,6 +10,7 @@ import (
 	"github.com/bytedance/sonic"
 	"io"
 	"mime/multipart"
+	"net/http"
 )
 
 type ChannelHandler struct {
@@ -20,8 +21,76 @@ func NewChannelHandler(rest *Client) *ChannelHandler {
 	return &ChannelHandler{rest: rest}
 }
 
-func (ch *ChannelHandler) GetChannel(channelId string) (*discord.Channel, error) {
-	data, err := ch.rest.Request(fmt.Sprintf(EndpointGetChannel, channelId), "GET", nil, "application/json")
+// Reactions
+
+func (ch *ChannelHandler) GetReactions(channelId, messageId, emoji string) ([]*discord.User, error) {
+	data, err := ch.rest.Request(fmt.Sprintf(EndpointGetReactions, channelId, messageId, emoji), http.MethodGet, nil, "application/json")
+	if err != nil {
+		return nil, err
+	}
+
+	var users []*discord.User
+	err = sonic.Unmarshal(data, &users)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
+func (ch *ChannelHandler) AddReaction(channelId, messageId, emoji string) error {
+	_, err := ch.rest.Request(fmt.Sprintf(EndpointOwnReaction, channelId, messageId, emoji), http.MethodPut, nil, "application/json")
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ch *ChannelHandler) DeleteOwnReaction(channelId, messageId, emoji string) error {
+	_, err := ch.rest.Request(fmt.Sprintf(EndpointOwnReaction, channelId, messageId, emoji), http.MethodDelete, nil, "application/json")
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ch *ChannelHandler) DeleteUserReaction(channelId, messageId, emoji, userId string) error {
+	_, err := ch.rest.Request(fmt.Sprintf(EndpointDeleteUserReaction, channelId, messageId, emoji, userId), http.MethodDelete, nil, "application/json")
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ch *ChannelHandler) DeleteAllReactions(channelId, messageId string) error {
+	_, err := ch.rest.Request(fmt.Sprintf(EndpointDeleteAllReactions, channelId, messageId), http.MethodDelete, nil, "application/json")
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ch *ChannelHandler) DeleteAllReactionsForEmoji(channelId, messageId, emoji string) error {
+	_, err := ch.rest.Request(fmt.Sprintf(EndpointDeleteAllReactionsForEmoji, channelId, messageId, emoji), http.MethodDelete, nil, "application/json")
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ch *ChannelHandler) Get(channelId string) (*discord.Channel, error) {
+	data, err := ch.rest.Request(fmt.Sprintf(EndpointGetChannel, channelId), http.MethodGet, nil, "application/json")
 
 	if err != nil {
 		return nil, err
@@ -39,7 +108,7 @@ func (ch *ChannelHandler) GetChannel(channelId string) (*discord.Channel, error)
 
 // GetMessage gets a message from a channel
 func (ch *ChannelHandler) GetMessage(channelId, messageId string) (*discord.Message, error) {
-	res, err := ch.rest.Request(fmt.Sprintf(EndpointGetChannelMessage, channelId, messageId), "GET", nil, "application/json")
+	res, err := ch.rest.Request(fmt.Sprintf(EndpointGetChannelMessage, channelId, messageId), http.MethodGet, nil, "application/json")
 
 	if err != nil {
 		return nil, err
@@ -63,7 +132,7 @@ func (ch *ChannelHandler) SendMessage(channelId string, content any) (*discord.M
 		return nil, err
 	}
 
-	res, err := ch.rest.Request(fmt.Sprintf(EndpointCreateMessage, channelId), "POST", b, contentType)
+	res, err := ch.rest.Request(fmt.Sprintf(EndpointCreateMessage, channelId), http.MethodPost, b, contentType)
 
 	if err != nil {
 		return nil, err
@@ -87,7 +156,7 @@ func (ch *ChannelHandler) ReplyMessage(channelId, messageId string, content any)
 		return nil, err
 	}
 
-	res, err := ch.rest.Request(fmt.Sprintf(EndpointCreateMessage, channelId), "POST", b, contentType)
+	res, err := ch.rest.Request(fmt.Sprintf(EndpointCreateMessage, channelId), http.MethodPost, b, contentType)
 
 	if err != nil {
 		return nil, err
@@ -104,14 +173,14 @@ func (ch *ChannelHandler) ReplyMessage(channelId, messageId string, content any)
 	return msg, nil
 }
 
-func (ch *ChannelHandler) Edit(channelId, messageId string, content any) (*discord.Message, error) {
+func (ch *ChannelHandler) EditMessage(channelId, messageId string, content any) (*discord.Message, error) {
 	b, contentType, err := formatMessage(content, "")
 
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := ch.rest.Request(fmt.Sprintf(EndpointEditMessage, channelId, messageId), "PATCH", b, contentType)
+	res, err := ch.rest.Request(fmt.Sprintf(EndpointEditMessage, channelId, messageId), http.MethodPatch, b, contentType)
 
 	if err != nil {
 		return nil, err
@@ -129,7 +198,7 @@ func (ch *ChannelHandler) Edit(channelId, messageId string, content any) (*disco
 }
 
 func (ch *ChannelHandler) CrosspostMessage(channelId, messageId string) (*discord.Message, error) {
-	data, err := ch.rest.Request(fmt.Sprintf(EndpointCrosspostMessage, channelId, messageId), "POST", nil, "application/json")
+	data, err := ch.rest.Request(fmt.Sprintf(EndpointCrosspostMessage, channelId, messageId), http.MethodPost, nil, "application/json")
 
 	if err != nil {
 		return nil, err
@@ -143,6 +212,16 @@ func (ch *ChannelHandler) CrosspostMessage(channelId, messageId string) (*discor
 	}
 
 	return &msg, nil
+}
+
+func (ch *ChannelHandler) DeleteMessage(channelId string, messageId string) error {
+	_, err := ch.rest.Request(fmt.Sprintf(EndpointDeleteMessage, channelId, messageId), http.MethodDelete, nil, "application/json")
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // formatMessage formats the message to be sent to the API it avoids code duplication. // ToDo : Create a custom type for it, use generics when available
